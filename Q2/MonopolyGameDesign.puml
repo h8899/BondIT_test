@@ -1,0 +1,164 @@
+@startuml
+
+package "Model-Controller" {
+    GameEngine -left-> Die: contains >
+    class Die {
+        - randomSeed
+        + roll(): int
+    }
+
+    class GameEngine {
+        - die: Die
+        - playerController: PlayerController
+        - bankController: BankController
+        - boardModel: BoardModel
+        - storageManager: StorageManager
+        + initPlayers()
+        + startGame()
+        + rollDice()
+        + playCard()
+        + drawCard()
+        + movePlayer()
+        + buyProperty()
+        + sendToJail()
+        + publishEvent()
+        + ...()
+    }
+
+
+    GameEngine -up-> BankController: controls >
+    class BankController {
+        - balance: int
+        + chargeFee(Player, int)
+        + paySalary(Player, int)
+        + transferMoney(Player, Player, int)
+    }
+
+    GameEngine -up-> PlayerController: controls >
+    BankController -right-> PlayerController: uses >
+    class PlayerController {
+        - currentPlayer: Player
+        - players: List<Player>
+        + getCurrentPlayer(): Player
+        + nextPlayer()
+        + putInJail(Player)
+        + releaseFromJail(Player)
+        + changePlayerPosition(Player, position)
+        + addProperty(Player, PropertySquare)
+        + removeProperty(Player, PropertySquare)
+    }
+
+    PlayerController "1" - "*" Player: contains >
+
+    Player <|- ComputerPlayer
+    Player <|- PersonPlayer
+
+    class Player {
+        - name: String
+        - position: int
+        - money: int
+        - propertyMap: HashMap
+        - inJail: boolean
+        - isBot: boolean
+        - isTurn: boolean
+    }
+
+    class PersonPlayer {
+        + void makeMove()
+    }
+
+    class ComputerPlayer {
+        + void makeMove()
+    }
+
+
+    GameEngine -down-> BoardModel: controls >
+
+    class BoardModel {
+        - squares: List<Square>
+        - actionCards: list<Card>
+        + getSquareAt(Int location))
+        + getCard(String type)
+    }
+
+    BoardModel -right-> "Squares"
+    package "Squares" {
+        abstract class Square {
+            - name: String
+            - type: enum
+            + evaluateSquare(GameEngine): void
+        }
+
+        class SquareFactory {}
+        Square -down-> SquareFactory: uses >
+
+        class JailSquare {}
+        class PropertySquare {}
+        class ChanceCardSquare {}
+        class IncomeTaxSquare {}
+        class GoSquare {}
+        class TaxReturnSquare {}
+        class RailRoadSquare {}
+        class GoToJailSquare {}
+        class UtilitySquare {}
+    }
+
+
+    BoardModel -left-> "Cards"
+
+    package "Cards" {
+        interface ICard {
+            + playCard(GameEngine): void
+        }
+
+        ICard -down-> CardFactory: uses >
+        class CardFactory {}
+
+        CommunityCard -left-> ICard
+        ChanceCard -left-> ICard
+        abstract class CommunityCard {
+            - title: String
+            - type: enum
+            + playCard(GameEngine): void
+        }
+        abstract class ChanceCard {
+            - title: String
+            - type: enum
+            + playCard(GameEngine): void
+        }
+    }
+
+    GameEngine -right-> StorageManager: controls >
+    class StorageManager {
+    }
+
+}
+
+GameEngine -right-> Observer
+interface Observer {
+    + eventListener
+    + eventPerformed()
+}
+
+Observer -right-> "View"
+
+package "View" {
+    class MainWindow {}
+
+    MainWindow -right-> BoardDisplay: contains
+    MainWindow -right-> PlayerDisplay: contains
+    MainWindow -right-> ButtonDisplay: contains
+    MainWindow -right-> DiceDisplay: contains
+    MainWindow -right-> GameWindow: contains
+    MainWindow -right-> MenuWindow: contains
+
+    class BoardDisplay {}
+    class PlayerDisplay {}
+    class ButtonDisplay {}
+    class DiceDisplay {}
+    class GameWindow {}
+    class MenuWindow {}
+}
+
+
+@enduml
