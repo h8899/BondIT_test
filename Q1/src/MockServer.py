@@ -4,7 +4,7 @@ from Q1.src.PortfolioLogicManager import PortfolioLogicManager
 class MockServer(object):
     @staticmethod
     def startServer():
-        BondStorageSingleton.getInstance().batchLoadCsv("bond_data.csv")
+        BondStorageSingleton.getInstance().batchLoadCsv("bonds_trading_data.csv")
 
     @staticmethod
     def calculatePortfolio(json_request):
